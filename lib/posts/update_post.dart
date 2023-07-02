@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,17 +6,21 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_app/components/custom_image.dart';
+import 'package:social_media_app/models/post.dart';
 import 'package:social_media_app/models/user.dart';
 import 'package:social_media_app/utils/firebase.dart';
 import 'package:social_media_app/view_models/auth/posts_view_model.dart';
 import 'package:social_media_app/widgets/indicators.dart';
 
-class CreatePost extends StatefulWidget {
+class UpdatePost extends StatefulWidget {
+  UpdatePost(this.post);
+
+  final PostModel post;
   @override
-  _CreatePostState createState() => _CreatePostState();
+  _UpdatePostState createState() => _UpdatePostState();
 }
 
-class _CreatePostState extends State<CreatePost> {
+class _UpdatePostState extends State<UpdatePost> {
   @override
   Widget build(BuildContext context) {
     currentUserId() {
@@ -46,14 +51,14 @@ class _CreatePostState extends State<CreatePost> {
             actions: [
               GestureDetector(
                 onTap: () async {
-                  await viewModel.uploadPosts(context);
+                  await viewModel.updatePost(context, widget.post.id ?? "");
                   viewModel.resetPost();
-                  Navigator.pop(context);
+                  Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
-                    'Post'.toUpperCase(),
+                    'Update'.toUpperCase(),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15.0,
@@ -114,14 +119,11 @@ class _CreatePostState extends State<CreatePost> {
                           fit: BoxFit.cover,
                         )
                       : viewModel.mediaUrl == null
-                          ? Center(
-                              child: Text(
-                                'Upload a Photo',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              ),
+                          ? CachedNetworkImage(
+                              imageUrl: widget.post.mediaUrl ?? "",
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width - 30,
+                              fit: BoxFit.cover,
                             )
                           : Image.file(
                               viewModel.mediaUrl!,
@@ -140,7 +142,7 @@ class _CreatePostState extends State<CreatePost> {
                 ),
               ),
               TextFormField(
-                initialValue: viewModel.description,
+                initialValue: viewModel.description ?? widget.post.description,
                 decoration: InputDecoration(
                   hintText: 'Eg. This is very beautiful place!',
                   focusedBorder: UnderlineInputBorder(),

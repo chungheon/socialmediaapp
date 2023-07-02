@@ -43,6 +43,41 @@ class PostService extends Service {
     });
   }
 
+//uploads post to the post collection
+  deletePost(String uid) async {
+    DocumentSnapshot doc =
+        await usersRef.doc(firebaseAuth.currentUser!.uid).get();
+    var ref = postRef.doc(uid);
+    ref.delete();
+  }
+
+//uploads post to the post collection
+  updatePost(String uid,
+      {File? image, String? location, String? description}) async {
+    Map<Object, Object> data = {};
+    if (image != null) {
+      String link = await uploadImage(posts, image);
+      data["mediaUrl"] = link;
+    }
+
+    if (location != null) {
+      data["location"] = location;
+    }
+    if (description != null) {
+      data["description"] = description;
+    }
+
+    DocumentSnapshot doc =
+        await usersRef.doc(firebaseAuth.currentUser!.uid).get();
+    user = UserModel.fromJson(
+      doc.data() as Map<String, dynamic>,
+    );
+    var ref = postRef.doc(uid);
+    ref.update(data).catchError((e) {
+      print(e);
+    });
+  }
+
 //upload a comment
   uploadComment(String currentUserId, String comment, String postId,
       String ownerId, String mediaUrl) async {

@@ -19,9 +19,10 @@ import 'package:timeago/timeago.dart' as timeago;
 class UserPost extends StatelessWidget {
   final PostModel? post;
 
-  UserPost({this.post});
+  UserPost({this.post, this.onDelete});
 
   final DateTime timestamp = DateTime.now();
+  final Function? onDelete;
 
   currentUserId() {
     return firebaseAuth.currentUser!.uid;
@@ -37,7 +38,7 @@ class UserPost extends StatelessWidget {
       child: OpenContainer(
         transitionType: ContainerTransitionType.fadeThrough,
         openBuilder: (BuildContext context, VoidCallback _) {
-          return ViewImage(post: post);
+          return ViewImage(post: post, onDelete: this.onDelete);
         },
         closedElevation: 0.0,
         closedShape: const RoundedRectangleBorder(
@@ -187,32 +188,6 @@ class UserPost extends StatelessWidget {
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
           List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
-
-          ///replaced this with an animated like button
-          // return IconButton(
-          //   onPressed: () {
-          //     if (docs.isEmpty) {
-          //       likesRef.add({
-          //         'userId': currentUserId(),
-          //         'postId': post!.postId,
-          //         'dateCreated': Timestamp.now(),
-          //       });
-          //       addLikesToNotification();
-          //     } else {
-          //       likesRef.doc(docs[0].id).delete();
-          //       services.removeLikeFromNotification(
-          //           post!.ownerId!, post!.postId!, currentUserId());
-          //     }
-          //   },
-          //   icon: docs.isEmpty
-          //       ? Icon(
-          //           CupertinoIcons.heart,
-          //         )
-          //       : Icon(
-          //           CupertinoIcons.heart_fill,
-          //           color: Colors.red,
-          //         ),
-          // );
           Future<bool> onLikeButtonTapped(bool isLiked) async {
             if (docs.isEmpty) {
               likesRef.add({

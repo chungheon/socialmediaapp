@@ -82,6 +82,7 @@ class _FeedsState extends State<Feeds> with AutomaticKeepAliveClientMixin{
               StoryWidget(),
               Container(
                 height: MediaQuery.of(context).size.height,
+                padding: EdgeInsets.only(bottom: 200.0),
                 child: FutureBuilder(
                   future: postRef
                       .orderBy('timestamp', descending: true)
@@ -100,7 +101,7 @@ class _FeedsState extends State<Feeds> with AutomaticKeepAliveClientMixin{
                               PostModel.fromJson(docs[index].data());
                           return Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: UserPost(post: posts),
+                            child: UserPost(post: posts, onDelete: ()=>setState((){})),
                           );
                         },
                       );

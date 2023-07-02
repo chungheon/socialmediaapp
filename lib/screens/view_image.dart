@@ -4,16 +4,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:like_button/like_button.dart';
+import 'package:provider/provider.dart';
 import 'package:social_media_app/models/post.dart';
 import 'package:social_media_app/models/user.dart';
+import 'package:social_media_app/posts/update_post.dart';
+import 'package:social_media_app/services/post_service.dart';
 import 'package:social_media_app/utils/firebase.dart';
+import 'package:social_media_app/view_models/auth/posts_view_model.dart';
 import 'package:social_media_app/widgets/indicators.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class ViewImage extends StatefulWidget {
   final PostModel? post;
+  final Function? onDelete;
 
-  ViewImage({this.post});
+  ViewImage({this.post, this.onDelete});
 
   @override
   _ViewImageState createState() => _ViewImageState();
@@ -33,7 +38,7 @@ class _ViewImageState extends State<ViewImage> {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-        child: buildImage(context),
+        child: buildImage(context),   
       ),
       bottomNavigationBar: BottomAppBar(
         elevation: 0.0,
@@ -67,6 +72,8 @@ class _ViewImageState extends State<ViewImage> {
                 ),
                 Spacer(),
                 buildLikeButton(),
+                buildDelete(context),
+                buildUpdate(context)
               ],
             ),
           ),
@@ -94,6 +101,101 @@ class _ViewImageState extends State<ViewImage> {
         ),
       ),
     );
+  }
+
+  buildDelete(BuildContext context){
+    bool isMe = currentUserId() == widget.post!.ownerId;
+    if(isMe)
+      return GestureDetector(
+        onTap: showDeleteOptions,
+        child: Icon(Icons.delete));
+    
+    return Container();
+  }
+
+  showUpdateOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+                        ListTile(
+              title: Text("Update?", textAlign: TextAlign.center,),
+            ),
+            ListTile(
+              title: Text("Yes"),
+              onTap: () {
+                PostsViewModel viewModel = Provider.of<PostsViewModel>(context, listen: false);
+                viewModel.locationTEC.text = widget.post?.location ?? "";
+                  Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (_) => UpdatePost(widget.post!),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text("No"),
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+    showDeleteOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+                        ListTile(
+              title: Text("Delete?", textAlign: TextAlign.center,),
+            ),
+            ListTile(
+              title: Text("Yes"),
+              onTap: () {
+                PostService().deletePost(widget.post?.id ?? "");
+                Navigator.popUntil(context, (route) => route.isFirst);
+                widget.onDelete?.call();
+              },
+            ),
+            ListTile(
+              title: Text("No"),
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  buildUpdate(BuildContext context){
+    bool isMe = currentUserId() == widget.post!.ownerId;
+    if(isMe)
+      return GestureDetector(
+        onTap: showUpdateOptions,
+        child: Icon(Icons.edit));
+    
+    return Container();
   }
 
   addLikesToNotification() async {
@@ -144,30 +246,6 @@ class _ViewImageState extends State<ViewImage> {
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
           List<QueryDocumentSnapshot> docs = snapshot.data?.docs ?? [];
-          // return IconButton(
-          //   onPressed: () {
-          //     if (docs.isEmpty) {
-          //       likesRef.add({
-          //         'userId': currentUserId(),
-          //         'postId': widget.post!.postId,
-          //         'dateCreated': Timestamp.now(),
-          //       });
-          //       addLikesToNotification();
-          //     } else {
-          //       likesRef.doc(docs[0].id).delete();
-          //       removeLikeFromNotification();
-          //     }
-          //   },
-          //   icon: docs.isEmpty
-          //       ? Icon(
-          //           CupertinoIcons.heart,
-          //         )
-          //       : Icon(
-          //           CupertinoIcons.heart_fill,
-          //           color: Colors.red,
-          //         ),
-          // );
-          ///added animated like button
           Future<bool> onLikeButtonTapped(bool isLiked) async {
             if (docs.isEmpty) {
               likesRef.add({
