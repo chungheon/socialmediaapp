@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "176366182055",
+    "project_id": "socialmediaapp-c2f79",
+    "storage_bucket": "socialmediaapp-c2f79.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176366182055:android:c9557164f5a354e8fa4582",
+        "android_client_info": {
+          "package_name": "com.greenhorizon.social_media_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "176366182055-ajl38atebqtrn4m1erd21buu7nhaaggi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.greenhorizon.social_media_app",
+            "certificate_hash": "9fb8ca1f78cf635008e967402e81ee0af4110098"
+          }
+        },
+        {
+          "client_id": "176366182055-7m45tpa3u0n2gauu5gfs0a5v2l16bo45.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgY6WAhlcKO4z9lKh1aK5GDDlFE8Hhejc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "176366182055-7m45tpa3u0n2gauu5gfs0a5v2l16bo45.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
